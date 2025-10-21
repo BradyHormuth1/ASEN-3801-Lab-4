@@ -1,0 +1,39 @@
+%% 2.2 
+% repeated w linearized 
+deltaFc = [delta_p; delta_q; delta_r];
+deltaGc = [delta_phi; delta_theta; delta_psi];
+
+% Run through function
+var_dot_linearized = QuadrotorEOM_Linearized(simTime, var, g, m, I, deltaFc, deltaGc);
+
+function var_dot = QuadrotorEOM_Linearized(t, var, g, m, I, deltaFc, deltaGc)
+    % Calculate the linearized dynamics around the equilibrium point
+    delta_xdot = 0; % delta_u --> no perturbation
+    delta_ydot = 0; % delta_v
+    delta_zdot = 0; % delta_w
+
+    delta_phidot = deltaFc(1); % delta_p
+    delta_thetadot = deltaFc(2); % delta_q 
+    delta_psidot = deltaFc(3); % delta_r
+
+    delta_phi = deltaGc(1); % delta_phi
+    delta_theta = deltaGc(2); % delta_theta
+    delta_psi = deltaGc(3); % delta_psi
+
+    delta_Zc = var();
+    delta_Nc = 0;
+    delta_Lc = 0;
+
+    I_x = I(1);
+    I_y = I(2);
+    I_z = I(3);
+
+    delta_uvwdot = g*[-delta_theta; delta_phi; 0]+ (1/m)*[0,0, delta_Zc];
+    delta_pqrdot = [(1/I_x)*delta_Lc; (1/I_y)*delta_Mc; (1/I_z)*delta_Nc];
+
+    % Update the state derivatives for the linearized model
+    var_dot = [delta_xdot; delta_ydot; delta_zdot;
+        delta_phidot; delta_thetadot; delta_psidot;
+        delta_uvwdot(:,1); delta_uvwdot(:,2); delta_uvwdot(:,3); 
+        delta_pqrdot(:,1); delta_pqrdot(:,2); delta_pqrdot(:,3)];
+end
