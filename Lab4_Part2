@@ -1,0 +1,24 @@
+% Part 2.1
+delta_phi = deg2rad(5); % roll, rad
+delta_theta = deg2rad(5); % pitch, rad
+delta_psi = deg2rad(5); % yaw, rad
+
+delta_p = .1; % roll rate, rad/sec
+delta_q = .1; % pitch rate, rad/sec
+delta_r = .1; % yaw rate, rad/sec
+
+
+%% Task 2.1
+% Update the motor forces based on the desired roll, pitch, and yaw rates
+motor_forces = [f1 + delta_p; f2 + delta_q; f3 + delta_r; f4];
+var = [xdata, ydata, zdata, phidata+delta_phi, thetadata+delta_phi, psidata+delta_psi, udata, vdata, wdata, pdata+delta_p, qdata+delta_q, rdata+delta_r];
+
+% Define the simulation time and initial conditions
+simTime = [0 10]; % seconds
+initialConditions = var(1, :); % Initial state from the variable data
+
+% Set up the ODE solver for the quadrotor dynamics
+var_dot = QuadrotorEOM(simTime, var, g, m, I, d, km, nu, mu, motor_forces);
+
+% plot
+% .... PlotAircraftSim
