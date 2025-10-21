@@ -1,11 +1,12 @@
 %% Part 2.2
-delta_phi = 5; % roll, deg
-delta_theta = 5; % pitch, deg
-delta_psi = 5; % yaw, deg
+delta_phi = deg2rad(5); % roll, rad
+delta_theta = deg2rad(5); % pitch, rad
+delta_psi = deg2rad(5); % yaw, rad
 
 delta_p = .1; % roll rate, rad/sec
 delta_q = .1; % pitch rate, rad/sec
 delta_r = .1; % yaw rate, rad/sec
+
 
 % repeated w linearized 
 deltaFc = [delta_p; delta_q; delta_r];
