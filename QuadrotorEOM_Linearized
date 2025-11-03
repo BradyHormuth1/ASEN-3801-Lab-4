@@ -1,48 +1,50 @@
-%% Part 2.2
-delta_phi = deg2rad(5); % roll, rad
-delta_theta = deg2rad(5); % pitch, rad
-delta_psi = deg2rad(5); % yaw, rad
-
-delta_p = .1; % roll rate, rad/sec
-delta_q = .1; % pitch rate, rad/sec
-delta_r = .1; % yaw rate, rad/sec
-
-
-% repeated w linearized 
-deltaFc = [delta_p; delta_q; delta_r];
-deltaGc = [delta_phi; delta_theta; delta_psi];
-
-% Run through function
-var_dot_linearized = QuadrotorEOM_Linearized(simTime, var, g, m, I, deltaFc, deltaGc);
-
 function var_dot = QuadrotorEOM_Linearized(t, var, g, m, I, deltaFc, deltaGc)
-    % Calculate the linearized dynamics around the equilibrium point
-    delta_xdot = 0; % delta_u --> no perturbation
-    delta_ydot = 0; % delta_v
-    delta_zdot = 0; % delta_w
+    xE     = var(1); 
+    yE     = var(2);
+    zE     = var(3);
+    phi    = var(4);  % roll perturbation 
+    theta  = var(5);  % pitch pertrubation
+    psi    = var(6);  % yaw perturbation 
+    uE     = var(7);  
+    vE     = var(8);
+    wE     = var(9);
+    p      = var(10); 
+    q      = var(11);
+    r      = var(12);
 
-    delta_phidot = deltaFc(1); % delta_p
-    delta_thetadot = deltaFc(2); % delta_q 
-    delta_psidot = deltaFc(3); % delta_r
+    Ix = I(1);
+    Iy = I(2);
+    Iz = I(3);
 
-    delta_phi = deltaGc(1); % delta_phi
-    delta_theta = deltaGc(2); % delta_theta
-    delta_psi = deltaGc(3); % delta_psi
+    % x_dot, y_dot, z_dot = linearized from u, v, w
+    xE_dot = uE;
+    yE_dot = vE;
+    zE_dot = wE;
 
-    delta_Zc = var();
-    delta_Nc = 0;
-    delta_Lc = 0;
+    % Small-angle approx
+    phi_dot   = p;
+    theta_dot = q;
+    psi_dot   = r;
 
-    I_x = I(1);
-    I_y = I(2);
-    I_z = I(3);
+    % g acts mostly along z--> small angle approx gives:
+    uE_dot = g*theta;
+    vE_dot = -g*phi;
+    wE_dot = 1/m * (-sum(deltaFc));  
 
-    delta_uvwdot = g*[-delta_theta; delta_phi; 0]+ (1/m)*[0,0, delta_Zc];
-    delta_pqrdot = [(1/I_x)*delta_Lc; (1/I_y)*delta_Mc; (1/I_z)*delta_Nc];
+    p_dot = deltaFc(1); % delta_Lc/Ix in linearized sense
+    q_dot = deltaFc(2); % delta_Mc/Iy
+    r_dot = deltaFc(3); % delta_Nc/Iz
 
-    % Update the state derivatives for the linearized model
-    var_dot = [delta_xdot; delta_ydot; delta_zdot;
-        delta_phidot; delta_thetadot; delta_psidot;
-        delta_uvwdot(:,1); delta_uvwdot(:,2); delta_uvwdot(:,3); 
-        delta_pqrdot(:,1); delta_pqrdot(:,2); delta_pqrdot(:,3)];
+    var_dot = [xE_dot;
+               yE_dot;
+               zE_dot;
+               phi_dot;
+               theta_dot;
+               psi_dot;
+               uE_dot;
+               vE_dot;
+               wE_dot;
+               p_dot;
+               q_dot;
+               r_dot];
 end
