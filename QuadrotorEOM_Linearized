@@ -1,50 +1,48 @@
 function var_dot = QuadrotorEOM_Linearized(t, var, g, m, I, deltaFc, deltaGc)
-    xE     = var(1); 
-    yE     = var(2);
-    zE     = var(3);
-    phi    = var(4);  % roll perturbation 
-    theta  = var(5);  % pitch pertrubation
-    psi    = var(6);  % yaw perturbation 
-    uE     = var(7);  
-    vE     = var(8);
-    wE     = var(9);
-    p      = var(10); 
-    q      = var(11);
-    r      = var(12);
+xE     = var(1);
+yE     = var(2);
+zE     = var(3);
+phi    = var(4);
+theta  = var(5);
+psi    = var(6);
+uE     = var(7);
+vE     = var(8);
+wE     = var(9);
+p      = var(10);
+q      = var(11);
+r      = var(12);
 
-    Ix = I(1);
-    Iy = I(2);
-    Iz = I(3);
+Ix = I(1);
+Iy = I(2);
+Iz = I(3);
 
-    % x_dot, y_dot, z_dot = linearized from u, v, w
-    xE_dot = uE;
-    yE_dot = vE;
-    zE_dot = wE;
+xE_dot = uE;
+yE_dot = vE;
+zE_dot = wE;
 
-    % Small-angle approx
-    phi_dot   = p;
-    theta_dot = q;
-    psi_dot   = r;
+phi_dot   = p;
+theta_dot = q;
+psi_dot   = r;
 
-    % g acts mostly along z--> small angle approx gives:
-    uE_dot = g*theta;
-    vE_dot = -g*phi;
-    wE_dot = 1/m * (-sum(deltaFc));  
+uE_dot = g * theta;
+vE_dot = -g * phi;
+wE_dot = -1/m * deltaFc(1);
 
-    p_dot = deltaFc(1); % delta_Lc/Ix in linearized sense
-    q_dot = deltaFc(2); % delta_Mc/Iy
-    r_dot = deltaFc(3); % delta_Nc/Iz
 
-    var_dot = [xE_dot;
-               yE_dot;
-               zE_dot;
-               phi_dot;
-               theta_dot;
-               psi_dot;
-               uE_dot;
-               vE_dot;
-               wE_dot;
-               p_dot;
-               q_dot;
-               r_dot];
+p_dot = deltaFc(1)/Ix;
+q_dot = deltaFc(2)/Iy;
+r_dot = deltaFc(3)/Iz;
+
+var_dot = [xE_dot;
+    yE_dot;
+    zE_dot;
+    phi_dot;
+    theta_dot;
+    psi_dot;
+    uE_dot;
+    vE_dot;
+    wE_dot;
+    p_dot;
+    q_dot;
+    r_dot];
 end
