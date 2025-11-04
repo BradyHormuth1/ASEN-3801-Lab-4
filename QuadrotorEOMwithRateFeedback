@@ -58,6 +58,6 @@ phi_dot   = p + q*sin(phi)*tan(theta) + r*cos(phi)*tan(theta);
 theta_dot = q*cos(phi) - r*sin(phi);
 psi_dot   = q*sin(phi)/cos(theta) + r*cos(phi)/cos(theta);
 
-var_dot = [x_dot; y_dot; z_dot; phi_dot; theta_dot; psi_dot; u_dot; v_dot; w_dot; p_dot; q_dot; r_dot];
+var_dot = [R*x_dot; R*y_dot; R*z_dot; R*phi_dot; R*theta_dot; R*psi_dot; u_dot; v_dot; w_dot; p_dot; q_dot; r_dot];
 
 end
