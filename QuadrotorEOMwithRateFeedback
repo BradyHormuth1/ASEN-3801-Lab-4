@@ -18,7 +18,7 @@ Iy = I(2);
 Iz = I(3);
 
 % Rate feedback control
-Kp = 0.004; % Nm/(rad/s)
+Kp = ; % Nm/(rad/s)
 Fc = m*g;
 Gc = -Kp * [p; q; r];
 
