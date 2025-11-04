@@ -1,3 +1,4 @@
+
 function PlotAircraftSim(time, aircraft_state_array, control_input_array, fig, col)
 
 % PlotAircraftSim(time, aircraft_state_array, control_input_array, fig, col)
@@ -57,14 +58,14 @@ ylabel('X_E [m]');
 axis tight;
 
 subplot(3,1,2); 
-plot(time,YE,col,'LineWidth',lw); 
+plot(time,YE,'-g','LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('Y_E [m]');
 axis tight;
 
 subplot(3,1,3); 
-plot(time,ZE, col,'LineWidth',lw); 
+plot(time,ZE, '-b','LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('Z_E [m]'); 
@@ -85,14 +86,14 @@ ylabel('\psi [rad]');
 axis tight;
 
 subplot(3,1,2); 
-plot(time,theta,col,'LineWidth',lw); 
+plot(time,theta,'-g','LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('\theta [rad]');
 axis tight;
 
 subplot(3,1,3); 
-plot(time,phi,col,'LineWidth',lw); 
+plot(time,phi,'-b','LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('\phi [rad]'); 
@@ -113,14 +114,14 @@ ylabel('u_E [m/s]');
 axis tight;
 
 subplot(3,1,2); 
-plot(time,vE,col,'LineWidth',lw); 
+plot(time,vE,'-g','LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('v_E [m/s]');
 axis tight;
 
 subplot(3,1,3); 
-plot(time,wE,col,'LineWidth',lw); 
+plot(time,wE,'-b','LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('w_E [m/s]'); 
@@ -140,14 +141,14 @@ ylabel('p [rad/s]');
 axis tight;
 
 subplot(3,1,2); 
-plot(time,q,col,'LineWidth',lw); 
+plot(time,q,'-g','LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('q [rad/s]');
 axis tight;
 
 subplot(3,1,3); 
-plot(time,r,col,'LineWidth',lw); 
+plot(time,r,'-b','LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('r [rad/s]'); 
@@ -169,21 +170,21 @@ ylabel('Z_c');
 axis tight;
 
 nexttile; 
-plot(time,Lc,col,'LineWidth',lw); 
+plot(time,Lc,'-g','LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('L_c');
 axis tight;
 
 nexttile; 
-plot(time,Mc,col,'LineWidth',lw); 
+plot(time,Mc,'-b','LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('M_c');
 axis tight;
 
 nexttile; 
-plot(time,Nc,col,'LineWidth',lw); 
+plot(time,Nc,'-w','LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('N_c'); 
@@ -208,3 +209,4 @@ title('3D Trajectory: Start=Green, End=Red');
 view(3);
 
 end
+
