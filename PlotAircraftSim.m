@@ -18,20 +18,13 @@ end
 assert(size(X,1) == numel(time) && size(X,2) == 12, ...
     'aircraft_state_array must be [n×12] aligned with time');
 
-if size(control_input_array,2) ~= numel(time) && size(control_input_array,1) == numel(time)
-    control_input_array = control_input_array.'; % want [4×n]
-end
-if size(control_input_array,1) ~= 4
-    error('control_input_array must be [4×n] with rows [Zc; Lc; Mc; Nc].');
-end
-
 % Unpack the rt_etim states
 XE = X(:,1); 
 YE = X(:,2); 
 ZE = X(:,3);
-psi = X(:,4); 
+phi = X(:,4); 
 theta = X(:,5); 
-phi = X(:,6);
+psi = X(:,6);
 uE = X(:,7); 
 vE = X(:,8); 
 wE = X(:,9);
@@ -79,10 +72,10 @@ sgtitle('Inertial Position');
 figure(fig(2));
 
 subplot(3,1,1); 
-plot(time,psi, col,'LineWidth',lw); 
+plot(time,phi, col,'LineWidth',lw); 
 grid on; 
 hold on; 
-ylabel('\psi [rad]');
+ylabel('\phi [rad]');
 axis tight;
 
 subplot(3,1,2); 
@@ -93,10 +86,10 @@ ylabel('\theta [rad]');
 axis tight;
 
 subplot(3,1,3); 
-plot(time,phi,'-b','LineWidth',lw); 
+plot(time,psi,'-b','LineWidth',lw); 
 grid on; 
 hold on; 
-ylabel('\phi [rad]'); 
+ylabel('\psi [rad]'); 
 axis tight;
 
 xlabel('Time [s]');
@@ -209,4 +202,3 @@ title('3D Trajectory: Start=Green, End=Red');
 view(3);
 
 end
-
