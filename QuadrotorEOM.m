@@ -1,4 +1,4 @@
-function var_dot = QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_forces)
+function [var_dot, Zc, Lc, Mc, Nc] = QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_forces)
 % var = [x y z phi theta psi uE vE wE p q r]^T
 % I   = [Ix Iy Iz]^T
 % motor_forces = [F1 F2 F3 F4]^T  (N)
@@ -22,7 +22,7 @@ controlMomMatrix = [-1,          -1,           -1,          -1;         % Zc
                      km,         -km,           km,         -km];       % Nc
 
 ControlMom = controlMomMatrix * motor_forces;
-Zc = ControlMom(1);  Lc = ControlMom(2);  
+Zc =  ControlMom(1);  Lc = ControlMom(2);  
 Mc = ControlMom(3);  Nc = ControlMom(4);
 
 % snap numerical noise in controls to zero
@@ -65,7 +65,7 @@ uE_dot =  r*vE - q*wE - g*sth          + F_aero(1)/m;
 vE_dot =  p*wE - r*uE + g*cth*sphi     + F_aero(2)/m;
 wE_dot =  q*uE - p*vE + g*cth*cphi + Zc/m + F_aero(3)/m;
 inertialVel_dot = [uE_dot; vE_dot; wE_dot];
-
+Zc = -Zc;
 % Rotational dynamics
 p_dot = ((Iy - Iz)/Ix)*q*r + Lc/Ix + M_aero(1)/Ix;
 q_dot = ((Iz - Ix)/Iy)*p*r + Mc/Iy + M_aero(2)/Iy;
