@@ -41,6 +41,7 @@ PlotAircraftSim(t, Y, control_hover, fig, col);
 
 % output check for thrust
 fprintf('Hover: Zc trim = %.6f N   (total upward thrust = %.6f N)\n\n', Zc_h, -Zc_h);
+fprintf('Hover rotor trim = %.6f N each\n\n', f_hover);
 
 % -------------------------------------------------------------------------
 %% 1.4a simulate 5 m/s no yaw
@@ -88,21 +89,21 @@ fprintf('No Yaw 5 m/s EAST: rotor trim = %.6f N each\n\n', f_5);
 %% 1.4b simulate 5 m/s 90 deg yaw
 % -------------------------------------------------------------------------
 
-psi_yaw = pi/2; % no yaw
+psi_yaw = pi/2; % 90 deg yaw
 
 % define the variable vec
-var0_5 = [0 0 0 ...                   % x y z
-              phi_5 theta_5 psi_yaw ...  % phi theta psi(90)
+var0_5_yaw = [0 0 0 ...                   % x y z
+              theta_5 -phi_5 psi_yaw ...  % phi theta psi(90)
               Uy 0 0 ...                  % uE vE wE  (0, 5, 0)
               0 0 0].';                   % p q r
 
 %call ode to simulate
 ode_yaw = @(t,var) QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_trim_5);
-[t3, Y3] = ode45(ode_yaw, tspan, var0_5, opts);
+[t3, Y3] = ode45(ode_yaw, tspan, var0_5_yaw, opts);
 
 % get controls from QuadEOM
-[~, Zc_yaw, Lc_yaw, Mc_yaw, Nc_yaw] = QuadrotorEOM(0, var0_5, g, m, I, d, km, nu, mu, motor_trim_5);
-controls_yaw = [Zc_yaw; Lc_yaw; Mc_yaw; Nc_yaw] * ones(1, numel(t2));
+[~, Zc_yaw, Lc_yaw, Mc_yaw, Nc_yaw] = QuadrotorEOM(0, var0_5_yaw, g, m, I, d, km, nu, mu, motor_trim_5);
+controls_yaw = [Zc_yaw; Lc_yaw; Mc_yaw; Nc_yaw] * ones(1, numel(t3));
 
 % plot 
 fig3 = 13:18;
@@ -141,3 +142,38 @@ fprintf('Final position:   [%.3f %.3f %.3f] m\n', state1(end,1), state1(end,2), 
 fprintf('Change in Z: %.3f m\n', abs(state1(end,3) - state1(1,3)));
 
 % -------------------------------------------------------------------------
+%% 2.1 (a-f) Simulations
+% -------------------------------------------------------------------------
+% Define deviation cases (a–f)
+deg2rad = pi/180;
+deviations = {
+    [0 0 0  +5*deg2rad 0 0  0 0 0  0 0 0]',   'Roll +5°';
+    [0 0 0  0 +5*deg2rad 0  0 0 0  0 0 0]',   'Pitch +5°';
+    [0 0 0  0 0 +5*deg2rad  0 0 0  0 0 0]',   'Yaw +5°';
+    [0 0 0  0 0 0  0 0 0  +0.1 0 0]',         'Roll rate +0.1 rad/s';
+    [0 0 0  0 0 0  0 0 0  0 +0.1 0]',         'Pitch rate +0.1 rad/s';
+    [0 0 0  0 0 0  0 0 0  0 0 +0.1]',         'Yaw rate +0.1 rad/s';
+};
+
+%% ------------------------------------------------------------------------
+% Run each case
+for i = 1:length(deviations)
+    var_new = var0 + deviations{i,1};
+    caseName = deviations{i,2};
+    
+    % Integrate nonlinear EOM
+    ode = @(t,var) QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_trim);
+    [t, Y] = ode45(ode, tspan, var_new, opts);
+
+    % Compute controls once for plotting (Zc, Lc, Mc, Nc)
+    [~, Zc, Lc, Mc, Nc] = QuadrotorEOM(0, var0, g, m, I, d, km, nu, mu, motor_trim);
+    control_input_array = [Zc; Lc; Mc; Nc] * ones(1, numel(t));
+
+    % Plot results (6 figures per case)
+    fig_start =  (i-1)*6 + 25;
+    fig = fig_start : fig_start+5;
+    col = 'r-';
+    PlotAircraftSim(t, Y, control_input_array, fig, col);
+    
+    fprintf('Completed simulation %d: %s\n', i, caseName);
+end
