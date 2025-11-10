@@ -93,7 +93,7 @@ psi_yaw = pi/2; % no yaw
 % define the variable vec
 var0_5 = [0 0 0 ...                   % x y z
               phi_5 theta_5 psi_yaw ...  % phi theta psi(90)
-              0 Uy 0 ...                  % uE vE wE  (0, 5, 0)
+              Uy 0 0 ...                  % uE vE wE  (0, 5, 0)
               0 0 0].';                   % p q r
 
 %call ode to simulate
