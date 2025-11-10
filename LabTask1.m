@@ -124,8 +124,7 @@ noControl = load('RSdata_nocontrol.mat');
 time = noControl.rt_estim.time(:); %nx1
 state0 = noControl.rt_estim.signals.values;
 
-% swap phi and psi for preference (4 +6)
-state1 = state0(:, [1 2 3 6 5 4 7 8 9 10 11 12]);
+state1 = state0(:, [1 2 3 4 5 6 7 8 9 10 11 12]);
 
 motor_data = noControl.rt_motor.signals.values;
 motor_d = motor_data.'; %nx4 to 4xn
