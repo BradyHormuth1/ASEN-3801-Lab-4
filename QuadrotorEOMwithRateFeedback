@@ -1,63 +1,10 @@
 function var_dot = QuadrotorEOMwithRateFeedback(t, var, g, m, I, d, km, nu, mu)
-
-xE = var(1);
-yE = var(2);
-zE = var(3);
-phi = var(4);
-theta = var(5);
-psi = var(6);
-u = var(7);
-v = var(8);
-w = var(9);
-p = var(10);
-q = var(11);
-r = var(12);
-
-Ix = I(1);
-Iy = I(2);
-Iz = I(3);
-
-% Rate feedback control
-Kp = .004; % Nm/(rad/s) --> given by lab doc
-Fc = m*g;
-Gc = -Kp * [p; q; r];
+% Compute control from current state
+[Fc, Gc] = RotationDerivativeFeedback(var, m, g);
 
 % Compute motor forces
-motor_forces = ComputeMotorForces(Fc, Gc, d, km);
+f = ComputeMotorForces(Fc, Gc, d, km);
 
-f1 = motor_forces(1);
-f2 = motor_forces(2);
-f3 = motor_forces(3);
-f4 = motor_forces(4);
-
-% Rotation matrix
-% Body---> Inertial
-R = [cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta);
-    sin(phi)*sin(theta)*cos(psi)-cos(phi)*sin(psi), sin(phi)*sin(theta)*sin(psi)+cos(phi)*cos(psi), sin(phi)*cos(theta);
-    cos(phi)*sin(theta)*cos(psi)+sin(phi)*sin(psi), cos(phi)*sin(theta)*sin(psi)-sin(phi)*cos(psi), cos(phi)*cos(theta)];
-
-F_total = [0; 0; f1+f2+f3+f4]; % body z thrust sum
-accel = (R * F_total)/m - [0;0;g]; % convert to inertial
-
-u_dot = accel(1);
-v_dot = accel(2);
-w_dot = accel(3);
-
-L = d/sqrt(2) * (-f1 - f2 + f3 + f4);
-M = d/sqrt(2) * ( f1 - f2 - f3 + f4);
-N = km * (f1 - f2 + f3 - f4);
-
-p_dot = (L - (Iz - Iy)*q*r)/Ix;
-q_dot = (M - (Ix - Iz)*p*r)/Iy;
-r_dot = (N - (Iy - Ix)*p*q)/Iz;
-
-x_dot = u;
-y_dot = v;
-z_dot = w;
-phi_dot   = p + q*sin(phi)*tan(theta) + r*cos(phi)*tan(theta);
-theta_dot = q*cos(phi) - r*sin(phi);
-psi_dot   = q*sin(phi)/cos(theta) + r*cos(phi)/cos(theta);
-
-var_dot = [R*x_dot; R*y_dot; R*z_dot; R*phi_dot; R*theta_dot; R*psi_dot; u_dot; v_dot; w_dot; p_dot; q_dot; r_dot];
-
+% Use new motor forces as feedback
+var_dot = QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, f);
 end
