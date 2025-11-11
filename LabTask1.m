@@ -1,4 +1,6 @@
 
+saveFigures = 1;
+
 %% Parameters ------------------------------------------------------------
 m  = 0.068;
 d  = 0.060;
@@ -155,24 +157,59 @@ deviations = {
 };
 
 %% ------------------------------------------------------------------------
-% Run each case
+
+% nonlinear ODE (hover motors)
+ode_nl = @(t,var) QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_trim);
+
+% linear ODE (zero control deviations)
+ode_lin = @(t,var) QuadrotorEOM_Linearized(t, var, g, m, I, zeros(3,1), zeros(3,1));
+
+% get hover controls ONCE so we know the baseline values
+[~, Zc_h, Lc_h, Mc_h, Nc_h] = QuadrotorEOM(0, var0, g, m, I, d, km, nu, mu, motor_trim);
+hover_ctrl_vec = [Zc_h; Lc_h; Mc_h; Nc_h];  % 4x1
+
 for i = 1:length(deviations)
-    var_new = var0 + deviations{i,1};
+    dev      = deviations{i,1};
     caseName = deviations{i,2};
-    
-    % Integrate nonlinear EOM
-    ode = @(t,var) QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_trim);
-    [t, Y] = ode45(ode, tspan, var_new, opts);
 
-    % Compute controls once for plotting (Zc, Lc, Mc, Nc)
-    [~, Zc, Lc, Mc, Nc] = QuadrotorEOM(0, var0, g, m, I, d, km, nu, mu, motor_trim);
-    control_input_array = [Zc; Lc; Mc; Nc] * ones(1, numel(t));
+    % ---------- nonlinear (2.1) ----------
+    x0_nl = var0 + dev;
+    [t_nl, Y_nl] = ode45(ode_nl, tspan, x0_nl, opts);
 
-    % Plot results (6 figures per case)
-    fig_start =  (i-1)*6 + 25;
-    fig = fig_start : fig_start+5;
-    col = 'r-';
-    PlotAircraftSim(t, Y, control_input_array, fig, col);
-    
-    fprintf('Completed simulation %d: %s\n', i, caseName);
+    % controls sized to nonlinear time
+    ctrl_nl = hover_ctrl_vec * ones(1, numel(t_nl));
+
+    fig_start = (i-1)*6 + 25;
+    figs = fig_start : fig_start+5;
+
+    % plot nonlinear in red
+    PlotAircraftSim(t_nl, Y_nl, ctrl_nl, figs, 'r-');
+
+    % ---------- linear (2.2) ----------
+    x0_lin = dev;   % linear model uses deviation state
+    [t_lin, Y_lin] = ode45(ode_lin, tspan, x0_lin, opts);
+
+    % controls sized to linear time
+    ctrl_lin = hover_ctrl_vec * ones(1, numel(t_lin));
+
+    % make sure we add to the existing figures
+    for k = 1:6
+        figure(figs(k)); hold on;
+    end
+
+    % plot linear in red dashed
+    PlotAircraftSim(t_lin, Y_lin, ctrl_lin, figs, 'r--');
+
+
+    fprintf('Completed 2.1 & 2.2 for case %d: %s\n', i, caseName);
 end
+
+if saveFigures == 1
+    fig = findall(0, 'Type', 'figure');
+    n = length(fig);
+    for i = 1:n
+        filename = "./Figures/Figure_" + string(fig(i).Number) + ".png";
+        saveas(fig(i), filename);
+    end
+end
+
