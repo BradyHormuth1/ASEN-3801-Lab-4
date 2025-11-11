@@ -1,3 +1,48 @@
+%% Loop through deviations
+for i = 1:length(deviations)
+    dev_name = deviations{i,1};
+    var0     = var_hover + deviations{i,2};
+    
+    %% Uncontrolled
+    [t_unctrl, var_unctrl] = ode45(@(t,var) QuadrotorEOM(t,var,g,m,I,d,km,nu,mu,motor_trim), tspan, var0);
+    F_unctrl = repmat(motor_trim,1,length(t_unctrl));
+
+    %% Controlled
+    [t_ctrl, var_ctrl] = ode45(@(t,var) QuadrotorEOMwithRateFeedback(t,var,g,m,I,nu,mu,d,km), tspan, var0);
+    F_ctrl = zeros(4,length(t_ctrl));
+    for k = 1:length(t_ctrl)
+        [~, F_ctrl(:,k)] = QuadrotorEOMwithRateFeedback(t_ctrl(k), var_ctrl(k,:)', g,m,I,nu,mu,d,km);
+    end
+
+    %% Plot angles
+    figure;
+    subplot(3,1,1);
+    plot(t_unctrl,var_unctrl(:,4),'r--','LineWidth',1.5); hold on;
+    plot(t_ctrl,var_ctrl(:,4),'b-','LineWidth',1.5);
+    ylabel('\phi [rad]'); title(dev_name); grid on; legend('Unctrl','Ctrl');
+
+    subplot(3,1,2);
+    plot(t_unctrl,var_unctrl(:,5),'r--','LineWidth',1.5); hold on;
+    plot(t_ctrl,var_ctrl(:,5),'b-','LineWidth',1.5);
+    ylabel('\theta [rad]'); grid on;
+
+    subplot(3,1,3);
+    plot(t_unctrl,var_unctrl(:,6),'r--','LineWidth',1.5); hold on;
+    plot(t_ctrl,var_ctrl(:,6),'b-','LineWidth',1.5);
+    ylabel('\psi [rad]'); xlabel('Time [s]'); grid on;
+
+    %% Plot motor thrusts
+    figure;
+    for k=1:4
+        plot(t_unctrl,F_unctrl(k,:),'r--','LineWidth',1.2); hold on;
+        plot(t_ctrl,F_ctrl(k,:),'b-','LineWidth',1.2);
+    end
+    xlabel('Time [s]'); ylabel('Motor thrust [N]'); grid on;
+    title(['Motor thrusts: ', dev_name]);
+    legend('Unctrl M1','Unctrl M2','Unctrl M3','Unctrl M4','Ctrl M1','Ctrl M2','Ctrl M3','Ctrl M4');
+end
+
+
 function var_dot = QuadrotorEOMwithRateFeedback(t, var, g, m, I, d, km, nu, mu)
 % Compute control from current state
 [Fc, Gc] = RotationDerivativeFeedback(var, m, g);
