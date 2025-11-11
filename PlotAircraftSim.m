@@ -32,33 +32,58 @@ p = X(:,10);
 q = X(:,11); 
 r = X(:,12);
 
+tol = 1e-14;
+XE(abs(XE) < tol) = 0;
+
 % Unpack controls from control_input_array
 Zc = control_input_array(1,:); 
 Lc = control_input_array(2,:);
 Mc = control_input_array(3,:);
 Nc = control_input_array(4,:);
 
-% ---------------- PLOTTING ----------------
+%---------line styles ------------------
+
+if nargin < 5 || isempty(col)
+    col = 'r-';
+end
+
+% primary call (solid) vs secondary call (dotted)
+isSecondary = contains(col,'--') || contains(col,':');
+
+if isSecondary
+    redStyle   = col;   % whatever you passed, e.g. 'b--' or 'r:'
+    greenStyle = 'g--';  % dotted green
+    blueStyle  = 'b--';  % dotted blue
+    whiteStyle = 'w--'; % for 3D and Nc
+else
+    redStyle   = col;   % e.g. 'r-'
+    greenStyle = 'g-';
+    blueStyle  = 'b-';
+    whiteStyle = 'w-';
+end
 lw = 1.25; %linewidth
+
+% ---------------- PLOTTING ----------------
+
 % Fig 1: Inertial Position
 figure(fig(1));
 
 subplot(3,1,1); 
-plot(time,XE, col,'LineWidth',lw); 
+plot(time,XE, redStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('X_E [m]');
 axis tight;
 
 subplot(3,1,2); 
-plot(time,YE,'-g','LineWidth',lw); 
+plot(time,YE,greenStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('Y_E [m]');
 axis tight;
 
 subplot(3,1,3); 
-plot(time,ZE, '-b','LineWidth',lw); 
+plot(time,ZE, blueStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('Z_E [m]'); 
@@ -72,21 +97,21 @@ sgtitle('Inertial Position');
 figure(fig(2));
 
 subplot(3,1,1); 
-plot(time,phi, col,'LineWidth',lw); 
+plot(time,phi, redStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('\phi [rad]');
 axis tight;
 
 subplot(3,1,2); 
-plot(time,theta,'-g','LineWidth',lw); 
+plot(time,theta,greenStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('\theta [rad]');
 axis tight;
 
 subplot(3,1,3); 
-plot(time,psi,'-b','LineWidth',lw); 
+plot(time,psi,blueStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('\psi [rad]'); 
@@ -100,21 +125,21 @@ sgtitle('Euler Angles');
 figure(fig(3));
 
 subplot(3,1,1); 
-plot(time,uE,col,'LineWidth',lw); 
+plot(time,uE,redStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('u_E [m/s]');
 axis tight;
 
 subplot(3,1,2); 
-plot(time,vE,'-g','LineWidth',lw); 
+plot(time,vE,greenStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('v_E [m/s]');
 axis tight;
 
 subplot(3,1,3); 
-plot(time,wE,'-b','LineWidth',lw); 
+plot(time,wE,blueStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('w_E [m/s]'); 
@@ -127,21 +152,21 @@ sgtitle('Inertial Velocity');
 figure(fig(4));
 
 subplot(3,1,1); 
-plot(time,p,col,'LineWidth',lw); 
+plot(time,p,redStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('p [rad/s]');
 axis tight;
 
 subplot(3,1,2); 
-plot(time,q,'-g','LineWidth',lw); 
+plot(time,q,greenStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('q [rad/s]');
 axis tight;
 
 subplot(3,1,3); 
-plot(time,r,'-b','LineWidth',lw); 
+plot(time,r,blueStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('r [rad/s]'); 
@@ -156,28 +181,28 @@ figure(fig(5));
 tiledlayout(4,1);
 
 nexttile; 
-plot(time,Zc,col,'LineWidth',lw); 
+plot(time,Zc,redStyle,'LineWidth',lw); 
 grid on;
 hold on; 
 ylabel('Z_c');
 axis tight;
 
 nexttile; 
-plot(time,Lc,'-g','LineWidth',lw); 
+plot(time,Lc,greenStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('L_c');
 axis tight;
 
 nexttile; 
-plot(time,Mc,'-b','LineWidth',lw); 
+plot(time,Mc,blueStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('M_c');
 axis tight;
 
 nexttile; 
-plot(time,Nc,'-w','LineWidth',lw); 
+plot(time,Nc,whiteStyle,'LineWidth',lw); 
 grid on; 
 hold on; 
 ylabel('N_c'); 
@@ -190,15 +215,14 @@ sgtitle('Control Inputs');
 figure(fig(6)); 
 hold on; 
 grid on; 
-axis equal
-Zup = -ZE; % flip sign if NED convention
-plot3(XE, YE, Zup, 'w', 'LineWidth', lw);
+Zup = -ZE; %  NED convention
+plot3(XE, YE, Zup, whiteStyle, 'LineWidth', lw);
 plot3(XE(1), YE(1), Zup(1), 'go', 'MarkerSize', 7);
 plot3(XE(end), YE(end), Zup(end), 'rx', 'MarkerSize', 7);
 xlabel('X_E [m]'); 
 ylabel('Y_E [m]'); 
 zlabel('Z_{up} [m]');
 title('3D Trajectory: Start=Green, End=Red');
-view(3);
+view(45,45);
 
 end
