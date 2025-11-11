@@ -24,14 +24,14 @@ phi_dot   = p;
 theta_dot = q;
 psi_dot   = r;
 
-uE_dot = g * theta;
-vE_dot = -g * phi;
-wE_dot = -1/m * deltaFc(1);
+uE_dot = -g * theta;
+vE_dot = g * phi;
+wE_dot = 1/m * deltaFc(1);
 
 
-p_dot = deltaFc(1)/Ix;
-q_dot = deltaFc(2)/Iy;
-r_dot = deltaFc(3)/Iz;
+p_dot = deltaGc(1)/Ix;
+q_dot = deltaGc(2)/Iy;
+r_dot = deltaGc(3)/Iz;
 
 var_dot = [xE_dot;
     yE_dot;
